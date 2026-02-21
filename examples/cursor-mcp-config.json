@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "voicewrite": {
+      "command": "node",
+      "args": [
+        "/path/to/voice_write_mcp_plugin/node-agent/dist/index.js",
+        "--voice",
+        "--overlay"
+      ]
+    }
+  }
+}

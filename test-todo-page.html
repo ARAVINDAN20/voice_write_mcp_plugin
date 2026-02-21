@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceWrite MCP - Todo List Test Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .main-content {
+            display: flex;
+            min-height: 600px;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            border-right: 2px solid #e9ecef;
+            padding: 20px;
+        }
+        
+        .folder-tree {
+            list-style: none;
+        }
+        
+        .folder-tree li {
+            margin-bottom: 10px;
+        }
+        
+        .folder {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .folder:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .folder-icon {
+            font-size: 1.5em;
+        }
+        
+        .task-list {
+            flex: 1;
+            padding: 30px;
+        }
+        
+        .task-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .task-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .task-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .task-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .badge-high {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .badge-medium {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .badge-low {
+            background: #28a745;
+            color: white;
+        }
+        
+        .task-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .task-actions .btn {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+        
+        .status-bar {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-top: 2px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .progress-bar {
+            flex: 1;
+            margin: 0 20px;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 60%;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 VoiceWrite MCP Test Dashboard</h1>
+            <p>Interactive Todo List with Folders & Actions</p>
+        </div>
+        
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="alert('New Task clicked!')">➕ New Task</button>
+            <button class="btn btn-success" onclick="alert('Save All clicked!')">💾 Save All</button>
+            <button class="btn btn-warning" onclick="alert('Export clicked!')">📤 Export</button>
+            <button class="btn btn-info" onclick="alert('Import clicked!')">📥 Import</button>
+            <button class="btn btn-danger" onclick="alert('Delete Selected clicked!')">🗑️ Delete Selected</button>
+            <button class="btn btn-primary" onclick="alert('Share clicked!')">🔗 Share</button>
+            <button class="btn btn-success" onclick="alert('Sync clicked!')">🔄 Sync</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <h3 style="margin-bottom: 15px; color: #333;">📁 Folders</h3>
+                <ul class="folder-tree">
+                    <li>
+                        <div class="folder" onclick="alert('Work folder clicked!')">
+                            <span class="folder-icon">💼</span>
+                            <span>Work Projects</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="folder" onclick="alert('Personal folder clicked!')">
+                            <span class="folder-icon">🏠</span>
+                            <span>Personal</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="folder" onclick="alert('Shopping folder clicked!')">
+                            <span class="folder-icon">🛒</span>
+                            <span>Shopping List</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="folder" onclick="alert('Health folder clicked!')">
+                            <span class="folder-icon">❤️</span>
+                            <span>Health & Fitness</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="folder" onclick="alert('Learning folder clicked!')">
+                            <span class="folder-icon">📚</span>
+                            <span>Learning Goals</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="task-list">
+                <h2 style="margin-bottom: 20px; color: #333;">Today's Tasks</h2>
+                
+                <div class="task-item" id="task1">
+                    <div class="task-header">
+                        <span class="task-title">1. Complete VoiceWrite MCP Testing</span>
+                        <span class="task-badge badge-high">High Priority</span>
+                    </div>
+                    <p class="task-description">
+                        Test the VoiceWrite MCP browser automation system with voice narration. 
+                        Navigate through the todo list page, click folders, and verify audio playback.
+                    </p>
+                    <div class="task-actions">
+                        <button class="btn btn-success" onclick="alert('Task 1 Complete!')">✓ Complete</button>
+                        <button class="btn btn-warning" onclick="alert('Task 1 Deferred')">⏸️ Defer</button>
+                        <button class="btn btn-info" onclick="alert('Task 1 Details')">📝 Details</button>
+                        <button class="btn btn-danger" onclick="alert('Task 1 Deleted')">🗑️ Delete</button>
+                    </div>
+                </div>
+                
+                <div class="task-item" id="task2">
+                    <div class="task-header">
+                        <span class="task-title">2. Review Pull Requests</span>
+                        <span class="task-badge badge-medium">Medium Priority</span>
+                    </div>
+                    <p class="task-description">
+                        Review and merge pending pull requests for the main project repository.
+                        Check for code quality, tests, and documentation updates.
+                    </p>
+                    <div class="task-actions">
+                        <button class="btn btn-success" onclick="alert('Task 2 Complete!')">✓ Complete</button>
+                        <button class="btn btn-warning" onclick="alert('Task 2 Deferred')">⏸️ Defer</button>
+                        <button class="btn btn-info" onclick="alert('Task 2 Details')">📝 Details</button>
+                        <button class="btn btn-danger" onclick="alert('Task 2 Deleted')">🗑️ Delete</button>
+                    </div>
+                </div>
+                
+                <div class="task-item" id="task3">
+                    <div class="task-header">
+                        <span class="task-title">3. Update Documentation</span>
+                        <span class="task-badge badge-low">Low Priority</span>
+                    </div>
+                    <p class="task-description">
+                        Update the README.md file with new installation instructions and usage examples.
+                        Include screenshots and troubleshooting guide.
+                    </p>
+                    <div class="task-actions">
+                        <button class="btn btn-success" onclick="alert('Task 3 Complete!')">✓ Complete</button>
+                        <button class="btn btn-warning" onclick="alert('Task 3 Deferred')">⏸️ Defer</button>
+                        <button class="btn btn-info" onclick="alert('Task 3 Details')">📝 Details</button>
+                        <button class="btn btn-danger" onclick="alert('Task 3 Deleted')">🗑️ Delete</button>
+                    </div>
+                </div>
+                
+                <div class="task-item" id="task4">
+                    <div class="task-header">
+                        <span class="task-title">4. Team Meeting Preparation</span>
+                        <span class="task-badge badge-high">High Priority</span>
+                    </div>
+                    <p class="task-description">
+                        Prepare slides and demo for the weekly team meeting. 
+                        Showcase the new VoiceWrite MCP features and gather feedback.
+                    </p>
+                    <div class="task-actions">
+                        <button class="btn btn-success" onclick="alert('Task 4 Complete!')">✓ Complete</button>
+                        <button class="btn btn-warning" onclick="alert('Task 4 Deferred')">⏸️ Defer</button>
+                        <button class="btn btn-info" onclick="alert('Task 4 Details')">📝 Details</button>
+                        <button class="btn btn-danger" onclick="alert('Task 4 Deleted')">🗑️ Delete</button>
+                    </div>
+                </div>
+                
+                <div class="task-item" id="task5">
+                    <div class="task-header">
+                        <span class="task-title">5. Deploy to Production</span>
+                        <span class="task-badge badge-medium">Medium Priority</span>
+                    </div>
+                    <p class="task-description">
+                        Deploy the latest version to production servers after final testing.
+                        Monitor logs and performance metrics post-deployment.
+                    </p>
+                    <div class="task-actions">
+                        <button class="btn btn-success" onclick="alert('Task 5 Complete!')">✓ Complete</button>
+                        <button class="btn btn-warning" onclick="alert('Task 5 Deferred')">⏸️ Defer</button>
+                        <button class="btn btn-info" onclick="alert('Task 5 Details')">📝 Details</button>
+                        <button class="btn btn-danger" onclick="alert('Task 5 Deleted')">🗑️ Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <span><strong>5 Tasks</strong> | 2 Completed</span>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <span>40% Complete</span>
+        </div>
+    </div>
+    
+    <script>
+        // Add some interactivity for VoiceWrite to test
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ VoiceWrite MCP Test Page Loaded');
+            console.log('📁 5 Folders available');
+            console.log('📋 5 Tasks loaded');
+            console.log('🔘 28 Buttons interactive');
+        });
+    </script>
+</body>
+</html>

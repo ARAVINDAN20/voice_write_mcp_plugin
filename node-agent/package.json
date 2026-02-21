@@ -1,0 +1,27 @@
+{
+  "name": "@voicewrite/mcp-agent",
+  "version": "1.0.0",
+  "description": "Voice-enabled browser automation agent with Kokoro-82M TTS",
+  "main": "dist/index.js",
+  "bin": {
+    "voicewrite": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "node ../test-client.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.1",
+    "axios": "^1.6.0",
+    "commander": "^11.1.0",
+    "playwright": "^1.49.0",
+    "playwright-core": "^1.49.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0"
+  }
+}

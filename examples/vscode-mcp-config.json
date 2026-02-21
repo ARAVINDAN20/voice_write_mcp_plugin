@@ -1,0 +1,13 @@
+{
+  "servers": {
+    "voicewrite": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/node-agent/dist/index.js",
+        "--voice",
+        "--overlay"
+      ]
+    }
+  }
+}
