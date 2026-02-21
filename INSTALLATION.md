@@ -83,6 +83,17 @@ curl -X POST http://localhost:8000/speak-sync \
 
 **🎉 You should hear:** *"Installation successful! VoiceWrite is ready."*
 
+> **💡 About TTS Voices:**
+>
+> VoiceWrite uses **Edge TTS** (Microsoft Edge's cloud TTS service):
+> - **No model downloads required** (saves 500MB+ disk space)
+> - **Free to use** - No API key or credit card needed
+> - **Automatic caching** - Voices cached locally after first use
+> - **High quality** - Neural voices from Microsoft
+> - **Always updated** - Latest voices automatically
+>
+> **First call note:** The first TTS request may take 2-3 seconds to fetch the voice. Subsequent calls are instant (cached).
+
 ---
 
 ## Detailed Installation

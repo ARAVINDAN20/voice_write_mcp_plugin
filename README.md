@@ -129,6 +129,17 @@ curl -X POST http://localhost:8000/speak-sync \
 
 **You should hear:** *"VoiceWrite is ready!"* through your speakers 🔊
 
+> **💡 NO MODEL DOWNLOADS REQUIRED!**
+>
+> VoiceWrite uses **Edge TTS** (Microsoft Edge's neural TTS API):
+> - ✅ **Free to use** - No API key, no credit card
+> - ✅ **No model downloads** - Cloud-based (saves 500MB+ disk space)
+> - ✅ **High-quality voices** - 10+ neural voice options
+> - ✅ **Auto-cached** - Voices cached locally after first use
+> - ✅ **Always updated** - Latest voices from Microsoft
+>
+> The TTS service automatically fetches voices from Microsoft's servers on-demand (first call may take 2-3 seconds, subsequent calls are instant).
+
 ---
 
 ## 📋 Table of Contents
