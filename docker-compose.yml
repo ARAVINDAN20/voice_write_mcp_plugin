@@ -7,24 +7,20 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
-    env_file: .env
     environment:
       - PYTHONUNBUFFERED=1
-      # PulseAudio environment variables for audio support
+      # PulseAudio for audio output
       - PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native
       - PULSE_COOKIE=/tmp/pulse-cookie
     volumes:
       - ./tts-service:/app
-      - voicewrite-tts-data:/root/.cache
-      # Mount PulseAudio socket for audio playback
-      - ${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native
-      - /tmp:/tmp
+      - voicewrite-tts-models:/root/.cache/huggingface  # Cache KittenTTS models
+      - ${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native  # Audio socket
+      - /tmp:/tmp  # Temp audio files
     devices:
-      # Allow access to audio devices
-      - /dev/snd:/dev/snd
+      - /dev/snd:/dev/snd  # Audio device access
     group_add:
-      # Add audio group if it exists
-      - audio
+      - audio  # Audio group
 
 volumes:
-  voicewrite-tts-data:
+  voicewrite-tts-models:  # Persist downloaded models

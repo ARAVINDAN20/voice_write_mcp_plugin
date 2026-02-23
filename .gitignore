@@ -64,3 +64,12 @@ screenshots/
 *.DS_Store
 .AppleDouble
 .LSOverride
+
+# TTS Model Cache (KittenTTS, Hugging Face)
+tts-service/.cache/
+tts-service/models/
+*.onnx
+*.bin
+*.pt
+*.pth
+.huggingface/

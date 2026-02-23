@@ -1,3 +1,5 @@
 fastapi==0.109.0
 uvicorn==0.27.0
+kittentts>=0.1.0
 edge-tts>=6.1.0
+soundfile>=0.12.1

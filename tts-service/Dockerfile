@@ -1,11 +1,15 @@
-# Use Python 3.10 slim image
-FROM python:3.10-slim
+# Use Python 3.12 (required for KittenTTS)
+FROM python:3.12-slim
 
-# Install system dependencies including ffmpeg for audio playback
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     alsa-utils \
     pulseaudio-utils \
+    libsndfile1 \
+    git \
+    espeak-ng \
+    espeak-ng-data \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

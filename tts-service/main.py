@@ -14,13 +14,27 @@ import threading
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("tts-service")
 
-app = FastAPI(title="VoiceWrite TTS Service", version="3.1.0")
+app = FastAPI(title="VoiceWrite TTS Service", version="4.0.0")
 
 # --- TTS State ---
 TTS_AVAILABLE = True
 AUDIO_QUEUE = asyncio.Queue()
 
-# Voice mapping (Edge TTS voices)
+# Edge TTS voices (Microsoft Neural voices - high quality, cloud-based)
+EDGE_VOICES = [
+    "en-US-AriaNeural",      # Female, warm (af_heart equivalent)
+    "en-US-JennyNeural",     # Female, friendly (af_bella equivalent)
+    "en-US-GuyNeural",       # Male, professional (af_nicole equivalent)
+    "en-US-DavisNeural",      # Male, clear (af_nova equivalent)
+    "en-US-TonyNeural",       # Male, deep (af_river equivalent)
+    "en-US-ChristopherNeural",# Male, authoritative (am_adam equivalent)
+    "en-US-EricNeural",       # Male, casual (am_michael equivalent)
+    "en-US-BrandonNeural",    # Male, young (am_onyx equivalent)
+    "en-US-JasonNeural",      # Male, mature (am_echo equivalent)
+    "en-US-SteffanNeural",    # Male, energetic (am_puck equivalent)
+]
+
+# Voice mapping for user-friendly names
 VOICE_MAP = {
     "af_heart": "en-US-AriaNeural",
     "af_bella": "en-US-JennyNeural",
@@ -33,6 +47,8 @@ VOICE_MAP = {
     "am_echo": "en-US-JasonNeural",
     "am_puck": "en-US-SteffanNeural",
 }
+
+DEFAULT_VOICE = "en-US-AriaNeural"
 
 async def play_audio_file(filepath: str):
     """Play audio file through system speakers using ffplay or aplay"""
@@ -72,9 +88,14 @@ async def audio_player_worker():
 
 @app.on_event("startup")
 async def startup_event():
-    logger.info("✅ VoiceWrite TTS (Edge TTS) is READY!")
-    logger.info(f"Available voices: {list(VOICE_MAP.keys())}")
-    logger.info("🔊 Audio will play through system speakers")
+    logger.info("="*60)
+    logger.info("🎙️ VoiceWrite TTS Service Starting...")
+    logger.info("="*60)
+    logger.info("🔊 Using Edge TTS (Microsoft Neural Voices)")
+    logger.info("🌐 Cloud-based, high-quality, no model downloads")
+    logger.info(f"🎤 Available voices: {len(EDGE_VOICES)}")
+    logger.info("🚀 Service ready!")
+    
     # Start background audio player
     asyncio.create_task(audio_player_worker())
 
@@ -85,16 +106,31 @@ class TTSRequest(BaseModel):
 
 @app.get("/health")
 def health_check():
-    return {"status": "ready", "tts_available": TTS_AVAILABLE}
+    return {
+        "status": "ready",
+        "tts_available": TTS_AVAILABLE,
+        "engine": "Edge TTS (Microsoft Neural)",
+        "voices": list(VOICE_MAP.keys()),
+        "offline": False,
+        "model_size": "0 MB (cloud-based)"
+    }
 
 @app.get("/voices")
 def list_voices():
-    return {"voices": list(VOICE_MAP.keys()), "tts_available": TTS_AVAILABLE}
+    return {
+        "voices": list(VOICE_MAP.keys()),
+        "default": "af_heart",
+        "tts_available": TTS_AVAILABLE,
+        "engine": "Edge TTS",
+        "offline": False,
+        "description": "Microsoft Azure Neural TTS - High quality cloud voices"
+    }
 
 @app.post("/speak")
 async def speak_endpoint(request: TTSRequest):
+    """Generate speech asynchronously (non-blocking)"""
     if not TTS_AVAILABLE:
-        raise HTTPException(status_code=503, detail="TTS not available")
+        raise HTTPException(status_code=503, detail="TTS unavailable")
 
     # Validate text
     if not request.text or len(request.text.strip()) == 0:
@@ -102,24 +138,15 @@ async def speak_endpoint(request: TTSRequest):
     
     # Truncate if too long
     text = request.text[:500] if len(request.text) > 500 else request.text
-
-    # Map voice
-    edge_voice = VOICE_MAP.get(request.voice, VOICE_MAP["af_heart"])
     
-    # Calculate speed string
-    speed_percent = int((request.speed - 1.0) * 100)
-    if speed_percent > 0:
-        speed_str = f"+{speed_percent}%"
-    elif speed_percent < 0:
-        speed_str = f"{speed_percent}%"
-    else:
-        speed_str = "+0%"
+    # Map voice
+    voice = VOICE_MAP.get(request.voice, DEFAULT_VOICE)
 
-    logger.info(f"🎤 Generating TTS: '{text[:50]}...' voice={edge_voice}, speed={speed_str}")
+    logger.info(f"🎤 Generating TTS: '{text[:50]}...' voice={voice}")
 
     try:
-        # Use edge-tts to generate audio
-        communicate = edge_tts.Communicate(text, edge_voice, rate=speed_str)
+        # Generate audio using Edge TTS
+        communicate = edge_tts.Communicate(text, voice)
         
         # Save to temporary file
         temp_file = tempfile.NamedTemporaryFile(suffix='.mp3', delete=False)
@@ -128,7 +155,6 @@ async def speak_endpoint(request: TTSRequest):
         
         await communicate.save(temp_filepath)
         
-        # Get file size
         file_size = os.path.getsize(temp_filepath)
         logger.info(f"✅ Generated {file_size} bytes of audio")
         
@@ -142,7 +168,8 @@ async def speak_endpoint(request: TTSRequest):
             media_type="application/json",
             headers={
                 "X-Audio-File": temp_filepath,
-                "X-Audio-Size": str(file_size)
+                "X-Audio-Size": str(file_size),
+                "X-Voice": voice
             }
         )
         
@@ -152,31 +179,30 @@ async def speak_endpoint(request: TTSRequest):
 
 @app.post("/speak-sync")
 async def speak_endpoint_sync(request: TTSRequest):
-    """Synchronous version - waits for audio to finish playing"""
+    """Generate speech and wait for playback to complete (blocking)"""
     if not TTS_AVAILABLE:
-        raise HTTPException(status_code=503, detail="TTS not available")
+        raise HTTPException(status_code=503, detail="TTS unavailable")
 
     if not request.text or len(request.text.strip()) == 0:
         raise HTTPException(status_code=400, detail="Empty text")
     
     text = request.text[:500] if len(request.text) > 500 else request.text
-    edge_voice = VOICE_MAP.get(request.voice, VOICE_MAP["af_heart"])
-    
-    speed_percent = int((request.speed - 1.0) * 100)
-    speed_str = f"+{speed_percent}%" if speed_percent != 0 else "+0%"
+    voice = VOICE_MAP.get(request.voice, DEFAULT_VOICE)
 
-    logger.info(f"🎤 Generating TTS (sync): '{text[:50]}...' voice={edge_voice}")
+    logger.info(f"🎤 Generating TTS (sync): '{text[:50]}...' voice={voice}")
 
     try:
-        communicate = edge_tts.Communicate(text, edge_voice, rate=speed_str)
+        # Generate audio
+        communicate = edge_tts.Communicate(text, voice)
         
+        # Save to temp file
         temp_file = tempfile.NamedTemporaryFile(suffix='.mp3', delete=False)
         temp_filepath = temp_file.name
         temp_file.close()
         
         await communicate.save(temp_filepath)
-        file_size = os.path.getsize(temp_filepath)
         
+        file_size = os.path.getsize(temp_filepath)
         logger.info(f"✅ Generated {file_size} bytes, playing now...")
         
         # Play synchronously (wait for completion)
@@ -188,7 +214,12 @@ async def speak_endpoint_sync(request: TTSRequest):
         except:
             pass
         
-        return {"status": "played", "size": file_size}
+        return {
+            "status": "played",
+            "size": file_size,
+            "voice": voice,
+            "engine": "Edge TTS"
+        }
         
     except Exception as e:
         logger.error(f"❌ TTS Error: {e}")
